@@ -1,0 +1,1505 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SDP 敏捷开发平台介绍</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    /* ===== CSS 变量系统 ===== */
+    :root {
+      /* 色彩系统 - 暗色主题（默认） */
+      --bg-primary: #0B0F19;
+      --bg-card: rgba(20, 30, 50, 0.7);
+      --bg-nav: rgba(11, 15, 25, 0.8);
+      --color-cyan: #00F5D4;
+      --color-emerald: #10B981;
+      --color-violet: #8B5CF6;
+      --color-amber: #F59E0B;
+      --text-primary: #E2E8F0;
+      --text-secondary: #94A3B8;
+      --border-color: rgba(0, 245, 212, 0.2);
+      --bg-playlist: rgba(11, 15, 25, 0.5);
+
+      /* 字体 */
+      --font-main: 'Inter', system-ui, sans-serif;
+      --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
+
+      /* 间距 */
+      --space-xs: 4px;
+      --space-sm: 8px;
+      --space-md: 16px;
+      --space-lg: 20px;
+      --space-xl: 32px;
+
+      /* 效果 */
+      --blur-md: blur(12px);
+      --shadow-card: 0 8px 32px rgba(0, 0, 0, 0.4);
+      --glow-border: 0 0 20px rgba(0, 245, 212, 0.15);
+
+      /* 播放器颜色 */
+      --player-bg: #000;
+      --player-accent: var(--color-cyan);
+      --player-progress: var(--color-cyan);
+      --player-volume: var(--color-cyan);
+    }
+
+    /* 白天主题 */
+    [data-theme="light"] {
+      --bg-primary: #F8FAFC;
+      --bg-card: rgba(255, 255, 255, 0.8);
+      --bg-nav: rgba(255, 255, 255, 0.9);
+      --text-primary: #1E293B;
+      --text-secondary: #64748B;
+      --border-color: rgba(0, 0, 0, 0.1);
+      --bg-playlist: rgba(248, 250, 252, 0.8);
+      --player-bg: #1E293B;
+      --color-cyan: #0891B2;
+      --color-emerald: #059669;
+      --color-violet: #7C3AED;
+      --glow-border: 0 0 20px rgba(8, 145, 178, 0.15);
+    }
+
+    /* ===== 全局重置 ===== */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html, body {
+      height: 100%;
+      width: 100%;
+      overflow: hidden;
+    }
+
+    body {
+      font-family: var(--font-main);
+      font-size: 14px;
+      line-height: 1.6;
+      color: var(--text-primary);
+      background-color: var(--bg-primary);
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      transition: background-color 0.3s ease, color 0.3s ease;
+    }
+
+    /* ===== 背景动画 ===== */
+    .background {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: -1;
+      background:
+        radial-gradient(ellipse at 20% 20%, rgba(0, 245, 212, 0.08) 0%, transparent 50%),
+        radial-gradient(ellipse at 80% 80%, rgba(139, 92, 246, 0.06) 0%, transparent 50%),
+        radial-gradient(ellipse at 50% 50%, rgba(16, 185, 129, 0.04) 0%, transparent 60%),
+        var(--bg-primary);
+      transition: background 0.3s ease;
+    }
+
+    [data-theme="light"] .background {
+      background:
+        radial-gradient(ellipse at 20% 20%, rgba(8, 145, 178, 0.08) 0%, transparent 50%),
+        radial-gradient(ellipse at 80% 80%, rgba(124, 58, 237, 0.06) 0%, transparent 50%),
+        radial-gradient(ellipse at 50% 50%, rgba(5, 150, 105, 0.04) 0%, transparent 60%),
+        var(--bg-primary);
+    }
+
+    /* ===== 导航栏 ===== */
+    .navbar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 64px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: var(--space-xl);
+      background: var(--bg-nav);
+      backdrop-filter: var(--blur-md);
+      -webkit-backdrop-filter: var(--blur-md);
+      border-bottom: 1px solid var(--border-color);
+      z-index: 100;
+      transition: background 0.3s ease, border-color 0.3s ease;
+    }
+
+    /* 网站标题 */
+    .site-title {
+      position: absolute;
+      left: 24px;
+      display: flex;
+      align-items: center;
+      gap: var(--space-sm);
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--color-cyan);
+      text-shadow: 0 0 10px rgba(0, 245, 212, 0.3);
+    }
+
+    .site-icon {
+      width: 24px;
+      height: 24px;
+      color: var(--color-cyan);
+    }
+
+    .nav-item {
+      position: relative;
+      padding: var(--space-sm) var(--space-md);
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--text-secondary);
+      cursor: pointer;
+      transition: all 0.3s ease;
+      border-radius: 6px;
+    }
+
+    .nav-item:hover {
+      color: var(--text-primary);
+      background: rgba(0, 245, 212, 0.05);
+    }
+
+    .nav-item.active {
+      color: var(--color-cyan);
+      text-shadow: 0 0 10px rgba(0, 245, 212, 0.5);
+    }
+
+    .nav-item.active::after {
+      content: '';
+      position: absolute;
+      bottom: -2px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 80%;
+      height: 2px;
+      background: var(--color-cyan);
+      box-shadow: 0 0 8px var(--color-cyan);
+      animation: pulse-glow 3s ease-in-out infinite;
+    }
+
+    /* 主题切换按钮 */
+    .theme-toggle {
+      position: absolute;
+      right: 24px;
+      width: 40px;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: transparent;
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      cursor: pointer;
+      color: var(--text-secondary);
+      transition: all 0.3s ease;
+    }
+
+    .theme-toggle:hover {
+      color: var(--color-cyan);
+      border-color: var(--color-cyan);
+      background: rgba(0, 245, 212, 0.05);
+    }
+
+    .theme-toggle svg {
+      width: 20px;
+      height: 20px;
+    }
+
+    .theme-toggle .sun-icon { display: none; }
+    .theme-toggle .moon-icon { display: block; }
+
+    [data-theme="light"] .theme-toggle .sun-icon { display: block; }
+    [data-theme="light"] .theme-toggle .moon-icon { display: none; }
+
+    /* ===== 主内容区域 ===== */
+    .main-content {
+      position: relative;
+      height: 100vh;
+      padding-top: 64px;
+      overflow: hidden;
+    }
+
+    .view {
+      display: none;
+      height: 100%;
+      animation: fade-in 0.5s ease-out;
+    }
+
+    .view.active {
+      display: block;
+    }
+
+    /* 视频介绍视图使用 flex 布局 */
+    #video.view.active {
+      display: flex;
+      flex-direction: row;
+    }
+
+    /* ===== 设计概述视图 ===== */
+    .overview-view {
+      padding: var(--space-xl);
+      overflow-y: auto;
+    }
+
+    .overview-view::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    .overview-view::-webkit-scrollbar-track {
+      background: rgba(0, 0, 0, 0.1);
+    }
+
+    .overview-view::-webkit-scrollbar-thumb {
+      background: rgba(0, 245, 212, 0.3);
+      border-radius: 3px;
+    }
+
+    [data-theme="light"] .overview-view::-webkit-scrollbar-track {
+      background: rgba(0, 0, 0, 0.05);
+    }
+
+    [data-theme="light"] .overview-view::-webkit-scrollbar-thumb {
+      background: rgba(8, 145, 178, 0.3);
+    }
+
+    .section {
+      margin-bottom: var(--space-xl);
+      animation: fade-in-up 0.6s ease-out backwards;
+    }
+
+    .section:nth-child(1) { animation-delay: 0ms; }
+    .section:nth-child(2) { animation-delay: 100ms; }
+    .section:nth-child(3) { animation-delay: 200ms; }
+
+    .section-title {
+      font-size: 24px;
+      font-weight: 700;
+      color: var(--color-cyan);
+      margin-bottom: var(--space-lg);
+      padding-bottom: var(--space-sm);
+      border-bottom: 1px solid var(--border-color);
+      transition: color 0.3s ease, border-color 0.3s ease;
+    }
+
+    .section-content {
+      background: var(--bg-card);
+      backdrop-filter: var(--blur-md);
+      -webkit-backdrop-filter: var(--blur-md);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: var(--space-lg);
+      box-shadow: var(--shadow-card);
+      transition: background 0.3s ease, border-color 0.3s ease;
+    }
+
+    .section-content p {
+      color: var(--text-secondary);
+      margin-bottom: var(--space-md);
+      line-height: 1.8;
+    }
+
+    .section-content p:last-child {
+      margin-bottom: 0;
+    }
+
+    .highlight {
+      color: var(--color-cyan);
+      font-weight: 600;
+    }
+
+    .sub-title {
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--color-emerald);
+      margin: var(--space-lg) 0 var(--space-md);
+    }
+
+    .feature-list {
+      list-style: none;
+    }
+
+    .feature-list li {
+      position: relative;
+      padding-left: var(--space-lg);
+      margin-bottom: var(--space-sm);
+      color: var(--text-secondary);
+    }
+
+    .feature-list li::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 10px;
+      width: 8px;
+      height: 8px;
+      background: var(--color-cyan);
+      border-radius: 50%;
+      box-shadow: 0 0 8px var(--color-cyan);
+    }
+
+    .ratio-tag {
+      display: inline-block;
+      background: rgba(0, 245, 212, 0.15);
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      padding: 2px 10px;
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--color-cyan);
+      font-family: var(--font-mono);
+    }
+
+    /* ===== 我能做什么视图 ===== */
+    .capabilities-view {
+      padding: var(--space-xl);
+      overflow-y: auto;
+      height: 100%;
+    }
+
+    .capabilities-view::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    .capabilities-view::-webkit-scrollbar-track {
+      background: rgba(0, 0, 0, 0.1);
+    }
+
+    .capabilities-view::-webkit-scrollbar-thumb {
+      background: rgba(0, 245, 212, 0.3);
+      border-radius: 3px;
+    }
+
+    .cap-main-title {
+      font-size: 28px;
+      font-weight: 700;
+      color: var(--color-cyan);
+      margin-bottom: var(--space-xl);
+      text-align: center;
+      padding-bottom: var(--space-md);
+      border-bottom: 2px solid var(--border-color);
+    }
+
+    .cap-section {
+      margin-bottom: var(--space-xl);
+      animation: fade-in-up 0.6s ease-out backwards;
+    }
+
+    .cap-section:nth-child(1) { animation-delay: 0ms; }
+    .cap-section:nth-child(2) { animation-delay: 100ms; }
+    .cap-section:nth-child(3) { animation-delay: 200ms; }
+
+    .cap-section-title {
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--color-cyan);
+      margin-bottom: var(--space-lg);
+      padding: var(--space-md);
+      background: var(--bg-card);
+      border-radius: 8px;
+      border-left: 4px solid var(--color-cyan);
+    }
+
+    .cap-subsection {
+      margin-bottom: var(--space-lg);
+    }
+
+    .cap-subsection-title {
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--color-emerald);
+      margin-bottom: var(--space-md);
+    }
+
+    .cap-card {
+      background: var(--bg-card);
+      backdrop-filter: var(--blur-md);
+      -webkit-backdrop-filter: var(--blur-md);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: var(--space-lg);
+      margin-bottom: var(--space-md);
+      box-shadow: var(--shadow-card);
+    }
+
+    .cap-intro {
+      font-size: 15px;
+      color: var(--text-secondary);
+      line-height: 1.8;
+      margin-bottom: var(--space-md);
+    }
+
+    .cap-intro strong {
+      color: var(--text-primary);
+    }
+
+    .cap-highlight {
+      color: var(--color-cyan);
+      font-weight: 600;
+    }
+
+    .cap-module-list {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: var(--space-md);
+      margin-bottom: var(--space-lg);
+    }
+
+    .cap-module-item {
+      background: rgba(0, 245, 212, 0.05);
+      border: 1px solid rgba(0, 245, 212, 0.15);
+      border-radius: 8px;
+      padding: var(--space-md);
+      transition: all 0.3s ease;
+    }
+
+    .cap-module-item:hover {
+      background: rgba(0, 245, 212, 0.1);
+      border-color: var(--color-cyan);
+      transform: translateY(-2px);
+    }
+
+    .cap-module-tag {
+      display: inline-block;
+      background: var(--color-cyan);
+      color: var(--bg-primary);
+      font-size: 12px;
+      font-weight: 600;
+      padding: 2px 8px;
+      border-radius: 4px;
+      margin-bottom: var(--space-sm);
+    }
+
+    .cap-module-name {
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: var(--space-xs);
+    }
+
+    .cap-module-desc {
+      font-size: 13px;
+      color: var(--text-secondary);
+    }
+
+    .cap-feature-list {
+      list-style: none;
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: var(--space-sm);
+    }
+
+    .cap-feature-list li {
+      position: relative;
+      padding: var(--space-sm) var(--space-md);
+      padding-left: var(--space-xl);
+      background: rgba(0, 245, 212, 0.03);
+      border-radius: 6px;
+      font-size: 14px;
+      color: var(--text-secondary);
+    }
+
+    .cap-feature-list li::before {
+      content: '▸';
+      position: absolute;
+      left: var(--space-md);
+      color: var(--color-cyan);
+    }
+
+    .cap-list {
+      list-style: none;
+    }
+
+    .cap-list li {
+      padding: var(--space-sm) 0;
+      color: var(--text-secondary);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .cap-list li:last-child {
+      border-bottom: none;
+    }
+
+    .cap-tag {
+      display: inline-block;
+      background: rgba(16, 185, 129, 0.2);
+      color: var(--color-emerald);
+      font-size: 12px;
+      padding: 2px 8px;
+      border-radius: 4px;
+      margin-right: var(--space-sm);
+    }
+
+    .cap-dev-tag {
+      display: inline-block;
+      background: rgba(245, 158, 11, 0.2);
+      color: var(--color-amber);
+      font-size: 11px;
+      padding: 2px 6px;
+      border-radius: 4px;
+      margin-left: var(--space-xs);
+    }
+
+    /* ===== 视频介绍视图 ===== */
+    .video-view {
+      display: flex;
+      flex-direction: row;
+      height: 100%;
+      overflow: hidden;
+      justify-content: center;
+      align-items: center;
+      gap: 16px;
+      padding: 16px;
+    }
+
+    /* 播放器区域 */
+    .player-section {
+      flex: 0 0 60%;
+      display: flex;
+      flex-direction: column;
+      padding: var(--space-lg);
+      border-right: 1px solid var(--border-color);
+      overflow: hidden;
+      min-width: 0;
+      transition: border-color 0.3s ease;
+    }
+
+    .video-title {
+      font-size: 20px;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: var(--space-md);
+      padding: var(--space-sm) var(--space-md);
+      background: var(--bg-card);
+      border-radius: 8px;
+      border: 1px solid var(--border-color);
+      transition: all 0.3s ease;
+    }
+
+    .video-wrapper {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      background: var(--player-bg);
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: var(--shadow-card), var(--glow-border);
+      position: relative;
+      min-height: 0;
+    }
+
+    .video-container {
+      flex: 1;
+      position: relative;
+      background: var(--player-bg);
+      min-height: 0;
+    }
+
+    .video-container video {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      background: var(--player-bg);
+    }
+
+    /* 自定义播放器控制栏 */
+    .player-controls {
+      display: flex;
+      align-items: center;
+      gap: var(--space-md);
+      padding: var(--space-md);
+      background: rgba(0, 0, 0, 0.8);
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    [data-theme="light"] .player-controls {
+      background: rgba(30, 41, 59, 0.9);
+      border-top-color: rgba(255, 255, 255, 0.1);
+    }
+
+    .control-btn {
+      width: 36px;
+      height: 36px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: transparent;
+      border: none;
+      color: #fff;
+      cursor: pointer;
+      border-radius: 6px;
+      transition: all 0.2s ease;
+      flex-shrink: 0;
+    }
+
+    .control-btn:hover {
+      background: rgba(255, 255, 255, 0.1);
+      color: var(--player-accent);
+    }
+
+    .control-btn svg {
+      width: 20px;
+      height: 20px;
+    }
+
+    /* 进度条 */
+    .progress-container {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      gap: var(--space-sm);
+    }
+
+    .progress-bar {
+      flex: 1;
+      height: 6px;
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 3px;
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .progress-bar:hover {
+      height: 8px;
+    }
+
+    .progress-filled {
+      height: 100%;
+      background: var(--player-progress);
+      border-radius: 3px;
+      width: 0%;
+      transition: width 0.1s linear;
+    }
+
+    .progress-bar:hover .progress-filled {
+      background: var(--color-cyan);
+    }
+
+    .time-display {
+      font-size: 12px;
+      color: rgba(255, 255, 255, 0.8);
+      font-family: var(--font-mono);
+      white-space: nowrap;
+      min-width: 100px;
+      text-align: center;
+    }
+
+    /* 音量控制 */
+    .volume-container {
+      display: flex;
+      align-items: center;
+      gap: var(--space-xs);
+    }
+
+    .volume-slider {
+      width: 80px;
+      height: 4px;
+      -webkit-appearance: none;
+      appearance: none;
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 2px;
+      cursor: pointer;
+    }
+
+    .volume-slider::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 12px;
+      height: 12px;
+      background: var(--player-volume);
+      border-radius: 50%;
+      cursor: pointer;
+    }
+
+    .volume-slider::-moz-range-thumb {
+      width: 12px;
+      height: 12px;
+      background: var(--player-volume);
+      border-radius: 50%;
+      cursor: pointer;
+      border: none;
+    }
+
+    /* 播放列表区域 */
+    .playlist-section {
+      width: 380px;
+      flex-shrink: 0;
+      display: flex;
+      flex-direction: column;
+      background: var(--bg-playlist);
+      overflow: hidden;
+      transition: background 0.3s ease;
+    }
+
+    .playlist-header {
+      padding: var(--space-md) var(--space-lg);
+      border-bottom: 1px solid var(--border-color);
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--text-primary);
+      background: var(--bg-card);
+      flex-shrink: 0;
+      transition: all 0.3s ease;
+    }
+
+    .playlist {
+      flex: 1;
+      overflow-y: auto;
+      padding: var(--space-sm);
+    }
+
+    .playlist::-webkit-scrollbar {
+      width: 4px;
+    }
+
+    .playlist::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    .playlist::-webkit-scrollbar-thumb {
+      background: rgba(0, 245, 212, 0.2);
+      border-radius: 2px;
+    }
+
+    [data-theme="light"] .playlist::-webkit-scrollbar-thumb {
+      background: rgba(8, 145, 178, 0.2);
+    }
+
+    .playlist-item {
+      display: flex;
+      align-items: center;
+      gap: var(--space-md);
+      padding: var(--space-md);
+      margin-bottom: var(--space-xs);
+      background: transparent;
+      border: 1px solid transparent;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .playlist-item:hover {
+      background: rgba(0, 245, 212, 0.05);
+      border-color: rgba(0, 245, 212, 0.1);
+    }
+
+    .playlist-item.active {
+      background: rgba(0, 245, 212, 0.1);
+      border-color: var(--color-cyan);
+      box-shadow: var(--glow-border);
+    }
+
+    .playlist-item:active {
+      transform: scale(0.99);
+    }
+
+    .playlist-item.active:active {
+      transform: scale(1);
+    }
+
+    .item-index {
+      width: 28px;
+      height: 28px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(0, 245, 212, 0.1);
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--color-cyan);
+      flex-shrink: 0;
+      transition: all 0.3s ease;
+    }
+
+    .playlist-item.active .item-index {
+      background: var(--color-cyan);
+      color: var(--bg-primary);
+    }
+
+    .item-title {
+      font-size: 13px;
+      color: var(--text-secondary);
+      flex: 1;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .playlist-item.active .item-title {
+      color: var(--text-primary);
+    }
+
+    .item-playing {
+      display: none;
+      width: 16px;
+      height: 16px;
+      flex-shrink: 0;
+    }
+
+    .playlist-item.active .item-playing {
+      display: block;
+      animation: pulse-glow 1.5s ease-in-out infinite;
+    }
+
+    /* 加载状态 */
+    .video-loading {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 40px;
+      height: 40px;
+      border: 3px solid rgba(255, 255, 255, 0.2);
+      border-top-color: var(--color-cyan);
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      display: none;
+    }
+
+    .video-loading.show {
+      display: block;
+    }
+
+    @keyframes spin {
+      to { transform: translate(-50%, -50%) rotate(360deg); }
+    }
+
+    /* ===== 动画 ===== */
+    @keyframes fade-in {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    @keyframes fade-in-up {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes pulse-glow {
+      0%, 100% {
+        opacity: 0.5;
+      }
+      50% {
+        opacity: 1;
+      }
+    }
+
+    /* 故障风效果 */
+    @keyframes glitch {
+      0% {
+        transform: translate(0);
+        opacity: 0;
+      }
+      20% {
+        transform: translate(-2px, 2px);
+        opacity: 1;
+      }
+      40% {
+        transform: translate(-2px, -2px);
+      }
+      60% {
+        transform: translate(2px, 2px);
+      }
+      80% {
+        transform: translate(2px, -2px);
+      }
+      100% {
+        transform: translate(0);
+        opacity: 1;
+      }
+    }
+
+    .glitch-in {
+      animation: glitch 0.6s ease-out forwards;
+    }
+
+    /* 点击回弹 */
+    .click-bounce {
+      transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    .click-bounce:active {
+      transform: scale(0.99);
+    }
+
+    .click-bounce.active:active {
+      transform: scale(1);
+    }
+
+    /* ===== 响应式 ===== */
+    @media (max-width: 1200px) {
+      .video-view {
+        flex-direction: column;
+        justify-content: flex-start;
+        padding: 12px;
+      }
+
+      .player-section {
+        flex: 0 0 60%;
+        width: 100%;
+        border-right: none;
+        border-bottom: 1px solid var(--border-color);
+        min-height: 0;
+      }
+
+      .playlist-section {
+        width: 100%;
+        flex: 1;
+        min-height: 0;
+      }
+
+      .volume-container {
+        display: none;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- 背景 -->
+  <div class="background"></div>
+
+  <!-- 导航栏 -->
+  <nav class="navbar">
+    <div class="site-title">
+      <svg class="site-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="16 18 22 12 16 6"></polyline>
+        <polyline points="8 6 2 12 8 18"></polyline>
+      </svg>
+      <span>SDP</span>
+    </div>
+    <div class="nav-item active" data-view="video">视频介绍</div>
+    <div class="nav-item" data-view="overview">设计概述</div>
+    <div class="nav-item" data-view="capabilities">我能做什么</div>
+    <button class="theme-toggle" id="themeToggle" title="切换主题">
+      <!-- 月亮图标（暗色主题显示） -->
+      <svg class="moon-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+      </svg>
+      <!-- 太阳图标（白天主题显示） -->
+      <svg class="sun-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="5"></circle>
+        <line x1="12" y1="1" x2="12" y2="3"></line>
+        <line x1="12" y1="21" x2="12" y2="23"></line>
+        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+        <line x1="1" y1="12" x2="3" y2="12"></line>
+        <line x1="21" y1="12" x2="23" y2="12"></line>
+        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+      </svg>
+    </button>
+  </nav>
+
+  <!-- 主内容 -->
+  <main class="main-content">
+    <!-- 设计概述视图 -->
+    <div id="overview" class="view overview-view">
+      <div class="section">
+        <h2 class="section-title">开发主旨</h2>
+        <div class="section-content">
+          <p><span class="highlight">自研低代码开发平台</span> — 高质效构建中小型 MIS</p>
+          <p>兼顾大型平台轻量化模块设计，融合前沿技术与企业级实践，重构高效开发范式</p>
+        </div>
+      </div>
+
+      <div class="section">
+        <h2 class="section-title">核心定位与技术基因</h2>
+        <div class="section-content">
+          <h3 class="sub-title">敏捷开发引擎</h3>
+          <ul class="feature-list">
+            <li>先管理好系统核心资产（功能和数据）事半功倍</li>
+            <li>构建"壳"系统和数据字典驱动底层能力</li>
+            <li>通过元数据定义模块元素进而转化为可执行功能</li>
+            <li>业务技术有效解耦大幅度提升开发质效并降低人员要求</li>
+          </ul>
+
+          <h3 class="sub-title">轻量化技术栈</h3>
+          <ul class="feature-list">
+            <li>支持 Java 主流语言</li>
+            <li>适配 MySQL 等数据库</li>
+            <li>提供本地化部署与云端 SaaS 双模式</li>
+            <li>满足中小型企业成本敏感与灵活扩展需求</li>
+            <li>有效支撑国产化、特殊数据库等个性化要求</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="section">
+        <h2 class="section-title">开发范式与综合收益</h2>
+        <div class="section-content">
+          <h3 class="sub-title">"壳"系统支撑中小型 MIS 快速构建</h3>
+          <ul class="feature-list">
+            <li><span class="ratio-tag">10%</span> 系统功能复用 — <span class="highlight">微调</span></li>
+            <li><span class="ratio-tag">70%</span> 字典驱动功能 — <span class="highlight">配置</span></li>
+            <li><span class="ratio-tag">20%</span> 个性化功能 — <span class="highlight">独立开发</span></li>
+            <li>原型及 PRD 与可执行系统</li>
+            <li>高品质核心文档随系统高质效管控</li>
+          </ul>
+
+          <h3 class="sub-title">基于软件生命周期综合收益大幅度提升</h3>
+          <ul class="feature-list">
+            <li>底层成本投入 & 大技术升级：技术能力越强越可控</li>
+            <li>一次乘积效应：产品品质&开发效率、功能优化&可扩展性、高品质文档、人均质效……</li>
+            <li>二次乘积效应：多项目、长周期，收益更大</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- 我能做什么视图 -->
+    <div id="capabilities" class="view capabilities-view">
+      <h1 class="cap-main-title">我能做什么？</h1>
+
+      <!-- 第一部分：不编码能完成哪些页面和功能 -->
+      <div class="cap-section">
+        <h2 class="cap-section-title">一、不编码，能完成哪些页面和功能？</h2>
+
+        <div class="cap-card">
+          <p class="cap-intro">
+            无编码，仅编写Excel模版文件，并通过敏捷开发平台进行模块构建，即可以完成下列类型页面及模块的搭建，可供<strong>需求/设计</strong>、<strong>开发</strong>人员使用。
+          </p>
+          <p class="cap-intro">
+            <span class="cap-highlight">需求/设计人员</span>：对接客户需求，迅速产出原型图，减少原型图设计时间。并同步生成部分设计文档，规避繁琐工作。<br>
+            <span class="cap-highlight">开发人员</span>：初始化系统搭建，基础模块搭建，同步完成数据库设计。
+          </p>
+        </div>
+
+        <div class="cap-subsection">
+          <h3 class="cap-subsection-title">模块类型一览</h3>
+          <div class="cap-module-list">
+            <div class="cap-module-item">
+              <span class="cap-module-tag">m1</span>
+              <div class="cap-module-name">数据列表+数据采集</div>
+              <div class="cap-module-desc">基础列表展示与表单录入</div>
+            </div>
+            <div class="cap-module-item">
+              <span class="cap-module-tag">m2</span>
+              <div class="cap-module-name">媒体列表+数据采集</div>
+              <div class="cap-module-desc">m1扩展，支持图片/音视频</div>
+            </div>
+            <div class="cap-module-item">
+              <span class="cap-module-tag">m3</span>
+              <div class="cap-module-name">主子表展示及采集</div>
+              <div class="cap-module-desc">m1扩展，一对多数据维护</div>
+            </div>
+            <div class="cap-module-item">
+              <span class="cap-module-tag">m4</span>
+              <div class="cap-module-name">关联表展示</div>
+              <div class="cap-module-desc">m1扩展，数据关系维护</div>
+            </div>
+            <div class="cap-module-item">
+              <span class="cap-module-tag">m5</span>
+              <div class="cap-module-name">树状结构+表单采集</div>
+              <div class="cap-module-desc">菜单、组织机构维护</div>
+            </div>
+            <div class="cap-module-item">
+              <span class="cap-module-tag">m6</span>
+              <div class="cap-module-name">树状结构+数据列表</div>
+              <div class="cap-module-desc">树节点关联数据查询</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="cap-subsection">
+          <h3 class="cap-subsection-title">预制功能</h3>
+          <ul class="cap-feature-list">
+            <li><span class="cap-tag">f1</span> 维度表统计 - 自由设计统计方案</li>
+            <li><span class="cap-tag">f2</span> 图表统计 - 多种图表类型</li>
+            <li><span class="cap-tag">f3</span> 高级筛选 - 多层嵌套条件</li>
+            <li><span class="cap-tag">f4</span> 列表视图设置 - 列顺序/冻结/显隐</li>
+            <li><span class="cap-tag">f5</span> 列表数据导出 - 前端/后端导出</li>
+            <li><span class="cap-tag">f6</span> 生成设计文档 - 自动生成文档</li>
+            <li><span class="cap-tag">f7</span> 管理帮助文档 - 文档管理</li>
+            <li><span class="cap-tag">f8</span> 色彩主题管理 - 主题切换/自定义</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- 第二部分：开发者进阶 -->
+      <div class="cap-section">
+        <h2 class="cap-section-title">二、开发者进阶</h2>
+
+        <div class="cap-card">
+          <h3 class="cap-subsection-title">1. 添加自定义按钮</h3>
+          <ul class="cap-feature-list">
+            <li>配置工具栏自定义按钮 <span class="cap-dev-tag">需要开发</span></li>
+            <li>配置列表列自定义按钮 <span class="cap-dev-tag">需要开发</span></li>
+          </ul>
+        </div>
+
+        <div class="cap-card">
+          <h3 class="cap-subsection-title">2. 对列表的自定义开发</h3>
+          <ul class="cap-feature-list">
+            <li>设置操作列是否可用 <span class="cap-dev-tag">handle_columns disabled</span></li>
+            <li>单元格个性化渲染 <span class="cap-dev-tag">columnsRender</span></li>
+            <li>行单击/双击事件 <span class="cap-dev-tag">gridOnRowClick/DoubleClick</span></li>
+            <li>数据删除前后处理 <span class="cap-dev-tag">beforeDelete/afterDeletionFailure</span></li>
+            <li>数据加载后处理 <span class="cap-dev-tag">afterReload</span></li>
+          </ul>
+        </div>
+
+        <div class="cap-card">
+          <h3 class="cap-subsection-title">3. 对表单采集生命周期的自定义开发</h3>
+          <ul class="cap-feature-list">
+            <li>新建前 <span class="cap-dev-tag">initAddForm</span></li>
+            <li>编辑前 <span class="cap-dev-tag">initEditForm</span></li>
+            <li>提交前 <span class="cap-dev-tag">formBeforeSubmit</span></li>
+            <li>保存/删除成功后 <span class="cap-dev-tag">afterFormSaveSuccess/DeleteSuccess</span></li>
+          </ul>
+        </div>
+
+        <div class="cap-card">
+          <h3 class="cap-subsection-title">4. 对表单采集项的自定义开发</h3>
+          <ul class="cap-feature-list">
+            <li>自定义表单项校验 <span class="cap-dev-tag">validator</span></li>
+            <li>自定义表单项事件 <span class="cap-dev-tag">OnChange/OnBlur/OnFocus</span></li>
+          </ul>
+        </div>
+
+        <div class="cap-card">
+          <h3 class="cap-subsection-title">5. 默认接口扩展</h3>
+          <p class="cap-intro">数据的增删查改、导入、导出接口可采用默认，也可<strong class="cap-highlight">自定义接口</strong>。</p>
+        </div>
+      </div>
+
+      <!-- 第三部分：平台功能模块介绍 -->
+      <div class="cap-section">
+        <h2 class="cap-section-title">三、平台功能模块介绍</h2>
+
+        <div class="cap-card">
+          <h3 class="cap-subsection-title">1. 系统管理</h3>
+          <ul class="cap-list">
+            <li>人员管理 · 角色管理 · 菜单管理</li>
+            <li>码表管理 · 自定义SQL管理</li>
+            <li>自定义码表管理 · 系统日志管理</li>
+            <li>组织机构管理 · 皮肤设置 · 帮助文档管理</li>
+          </ul>
+        </div>
+
+        <div class="cap-card">
+          <h3 class="cap-subsection-title">2. 敏捷开发管理</h3>
+          <ul class="cap-list">
+            <li><strong>系统初始化</strong> - 一键完成基本表结构创建、系统信息导入、系统管理模块构建</li>
+            <li><strong>系统构建</strong> - 通过Excel完成菜单、模块、表管理、字典等构建</li>
+            <li><strong>物理表管理</strong> - 物理表导出、导出数据字典模板</li>
+            <li><strong>模块管理</strong> - 模块关联数据导出</li>
+            <li><strong>文档生成管理</strong> - 自动生成设计文档</li>
+            <li><strong>Excel采集</strong> - 仿Excel进行网页端数据整理</li>
+          </ul>
+        </div>
+
+        <div class="cap-card">
+          <h3 class="cap-subsection-title">3. 媒体管理</h3>
+          <p class="cap-intro">媒体类型的文件采集，列表页面可切换宫格/列表两种状态，图片、视频类型文件可直接预览。</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- 视频介绍视图 -->
+    <div id="video" class="view video-view active">
+      <div class="player-section">
+        <div class="video-title" id="currentVideoTitle">系统初始化</div>
+        <div class="video-wrapper">
+          <div class="video-container">
+            <video id="videoPlayer" preload="metadata">
+              <source src="./resource/intro/intro_10_sys_init_login.mp4" type="video/mp4">
+              您的浏览器不支持视频播放
+            </video>
+            <div class="video-loading" id="videoLoading"></div>
+          </div>
+          <!-- 自定义播放器控制栏 -->
+          <div class="player-controls">
+            <!-- 播放/暂停按钮 -->
+            <button class="control-btn" id="playPauseBtn" title="播放/暂停">
+              <svg class="play-icon" viewBox="0 0 24 24" fill="currentColor">
+                <polygon points="5 3 19 12 5 21 5 3"></polygon>
+              </svg>
+              <svg class="pause-icon" viewBox="0 0 24 24" fill="currentColor" style="display:none">
+                <rect x="6" y="4" width="4" height="16"></rect>
+                <rect x="14" y="4" width="4" height="16"></rect>
+              </svg>
+            </button>
+
+            <!-- 进度条 -->
+            <div class="progress-container">
+              <span class="time-display" id="currentTime">00:00</span>
+              <div class="progress-bar" id="progressBar">
+                <div class="progress-filled" id="progressFilled"></div>
+              </div>
+              <span class="time-display" id="totalTime">00:00</span>
+            </div>
+
+            <!-- 音量控制 -->
+            <div class="volume-container">
+              <button class="control-btn" id="volumeBtn" title="音量">
+                <svg class="volume-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+                  <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+                </svg>
+                <svg class="mute-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:none">
+                  <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+                  <line x1="23" y1="9" x2="17" y2="15"></line>
+                  <line x1="17" y1="9" x2="23" y2="15"></line>
+                </svg>
+              </button>
+              <input type="range" class="volume-slider" id="volumeSlider" min="0" max="1" step="0.1" value="1">
+            </div>
+
+            <!-- 全屏按钮 -->
+            <button class="control-btn" id="fullscreenBtn" title="全屏">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="15 3 21 3 21 9"></polyline>
+                <polyline points="9 21 3 21 3 15"></polyline>
+                <line x1="21" y1="3" x2="14" y2="10"></line>
+                <line x1="3" y1="21" x2="10" y2="14"></line>
+              </svg>
+            </button>
+          </div>
+        </div>
+      </div>
+      <div class="playlist-section">
+        <div class="playlist-header">视频列表</div>
+        <div class="playlist" id="playlist"></div>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    // 视频数据
+    const videos = [
+      { title: "系统初始化", url: "./resource/intro/intro_10_sys_init_login.mp4" },
+      { title: "基础模块展示", url: "./resource/intro/intro_15_sys_module.02.mp4" },
+      { title: "Excel构建模块", url: "./resource/intro/intro_20_init_module.02.mp4" },
+      { title: "文档生成管理", url: "./resource/intro/intro_30_doc_create.mp4" },
+      { title: "列表维度表统计", url: "./resource/intro/intro_50_grid_dimension%20table.mp4" },
+      { title: "列表高级查询", url: "./resource/intro/intro_50_grid_search_advanced.mp4" },
+      { title: "列表设置", url: "./resource/intro/intro_50_grid_setting.mp4" },
+      { title: "AI生成主题", url: "./resource/intro/intro_70_ai_theme.mp4" },
+      { title: "皮肤设置", url: "./resource/intro/intro_70_theme_color_setting.mp4" },
+      { title: "主题设置", url: "./resource/intro/intro_70_theme_select.mp4" }
+    ];
+
+    // DOM 元素
+    const navItems = document.querySelectorAll('.nav-item');
+    const views = document.querySelectorAll('.view');
+    const videoPlayer = document.getElementById('videoPlayer');
+    const currentVideoTitle = document.getElementById('currentVideoTitle');
+    const playlist = document.getElementById('playlist');
+    const themeToggle = document.getElementById('themeToggle');
+
+    // 播放器控制元素
+    const playPauseBtn = document.getElementById('playPauseBtn');
+    const progressBar = document.getElementById('progressBar');
+    const progressFilled = document.getElementById('progressFilled');
+    const currentTimeEl = document.getElementById('currentTime');
+    const totalTimeEl = document.getElementById('totalTime');
+    const volumeBtn = document.getElementById('volumeBtn');
+    const volumeSlider = document.getElementById('volumeSlider');
+    const fullscreenBtn = document.getElementById('fullscreenBtn');
+    const videoLoading = document.getElementById('videoLoading');
+
+    // 图标元素
+    const playIcon = playPauseBtn.querySelector('.play-icon');
+    const pauseIcon = playPauseBtn.querySelector('.pause-icon');
+    const volumeIcon = volumeBtn.querySelector('.volume-icon');
+    const muteIcon = volumeBtn.querySelector('.mute-icon');
+
+    let currentVideoIndex = 0;
+    let isPlaying = false;
+
+    // 格式化时间
+    function formatTime(seconds) {
+      if (isNaN(seconds)) return '00:00';
+      const mins = Math.floor(seconds / 60);
+      const secs = Math.floor(seconds % 60);
+      return `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+    }
+
+    // 初始化播放列表
+    function initPlaylist() {
+      playlist.innerHTML = videos.map((video, index) => `
+        <div class="playlist-item click-bounce ${index === currentVideoIndex ? 'active' : ''}" data-index="${index}">
+          <div class="item-index">${String(index + 1).padStart(2, '0')}</div>
+          <div class="item-title">${video.title}</div>
+          <svg class="item-playing" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="4" y="4" width="4" height="16" rx="1" fill="currentColor"/>
+            <rect x="10" y="6" width="4" height="12" rx="1" fill="currentColor"/>
+            <rect x="16" y="8" width="4" height="8" rx="1" fill="currentColor"/>
+          </svg>
+        </div>
+      `).join('');
+
+      // 绑定点击事件
+      document.querySelectorAll('.playlist-item').forEach(item => {
+        item.addEventListener('click', () => {
+          const index = parseInt(item.dataset.index);
+          playVideo(index);
+        });
+      });
+    }
+
+    // 播放指定视频
+    function playVideo(index) {
+      currentVideoIndex = index;
+      const video = videos[index];
+
+      // 显示加载状态
+      videoLoading.classList.add('show');
+
+      // 更新播放器
+      videoPlayer.src = video.url;
+      currentVideoTitle.textContent = video.title;
+      videoPlayer.play().catch(() => {
+        videoLoading.classList.remove('show');
+      });
+
+      // 更新列表选中状态
+      document.querySelectorAll('.playlist-item').forEach((item, i) => {
+        item.classList.toggle('active', i === index);
+      });
+    }
+
+    // 更新播放/暂停按钮状态
+    function updatePlayPauseButton(playing) {
+      playIcon.style.display = playing ? 'none' : 'block';
+      pauseIcon.style.display = playing ? 'block' : 'none';
+    }
+
+    // 切换视图
+    function switchView(viewId) {
+      navItems.forEach(item => {
+        item.classList.toggle('active', item.dataset.view === viewId);
+      });
+
+      views.forEach(view => {
+        view.classList.toggle('active', view.id === viewId);
+      });
+    }
+
+    // 主题切换
+    function toggleTheme() {
+      const html = document.documentElement;
+      const currentTheme = html.getAttribute('data-theme');
+      const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+      html.setAttribute('data-theme', newTheme === 'dark' ? '' : 'light');
+    }
+
+    // 绑定导航点击事件
+    navItems.forEach(item => {
+      item.addEventListener('click', () => {
+        switchView(item.dataset.view);
+      });
+    });
+
+    // 绑定主题切换
+    themeToggle.addEventListener('click', toggleTheme);
+
+    // 播放器事件绑定
+    // 播放/暂停
+    playPauseBtn.addEventListener('click', () => {
+      if (videoPlayer.paused) {
+        videoPlayer.play();
+      } else {
+        videoPlayer.pause();
+      }
+    });
+
+    // 视频开始播放
+    videoPlayer.addEventListener('play', () => {
+      isPlaying = true;
+      updatePlayPauseButton(true);
+    });
+
+    // 视频暂停
+    videoPlayer.addEventListener('pause', () => {
+      isPlaying = false;
+      updatePlayPauseButton(false);
+    });
+
+    // 视频加载元数据
+    videoPlayer.addEventListener('loadedmetadata', () => {
+      videoLoading.classList.remove('show');
+      totalTimeEl.textContent = formatTime(videoPlayer.duration);
+    });
+
+    // 视频可以播放
+    videoPlayer.addEventListener('canplay', () => {
+      videoLoading.classList.remove('show');
+    });
+
+    // 视频开始加载
+    videoPlayer.addEventListener('loadstart', () => {
+      videoLoading.classList.add('show');
+    });
+
+    // 更新进度条
+    videoPlayer.addEventListener('timeupdate', () => {
+      if (videoPlayer.duration) {
+        const progress = (videoPlayer.currentTime / videoPlayer.duration) * 100;
+        progressFilled.style.width = `${progress}%`;
+        currentTimeEl.textContent = formatTime(videoPlayer.currentTime);
+      }
+    });
+
+    // 进度条点击
+    progressBar.addEventListener('click', (e) => {
+      const rect = progressBar.getBoundingClientRect();
+      const percent = (e.clientX - rect.left) / rect.width;
+      videoPlayer.currentTime = percent * videoPlayer.duration;
+    });
+
+    // 音量控制
+    volumeSlider.addEventListener('input', (e) => {
+      videoPlayer.volume = e.target.value;
+      updateVolumeIcon(e.target.value > 0);
+    });
+
+    function updateVolumeIcon(hasVolume) {
+      volumeIcon.style.display = hasVolume ? 'block' : 'none';
+      muteIcon.style.display = hasVolume ? 'none' : 'block';
+    }
+
+    // 音量按钮点击（静音切换）
+    volumeBtn.addEventListener('click', () => {
+      if (videoPlayer.volume > 0) {
+        videoPlayer.dataset.volume = videoPlayer.volume;
+        videoPlayer.volume = 0;
+        volumeSlider.value = 0;
+        updateVolumeIcon(false);
+      } else {
+        const savedVolume = videoPlayer.dataset.volume || 1;
+        videoPlayer.volume = savedVolume;
+        volumeSlider.value = savedVolume;
+        updateVolumeIcon(true);
+      }
+    });
+
+    // 全屏
+    fullscreenBtn.addEventListener('click', () => {
+      const wrapper = document.querySelector('.video-wrapper');
+      if (document.fullscreenElement) {
+        document.exitFullscreen();
+      } else {
+        wrapper.requestFullscreen();
+      }
+    });
+
+    // 页面加载完成后初始化
+    document.addEventListener('DOMContentLoaded', () => {
+      initPlaylist();
+    });
+  </script>
+</body>
+</html>
