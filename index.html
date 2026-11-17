@@ -23,6 +23,13 @@
       --border-color: rgba(0, 245, 212, 0.2);
       --bg-playlist: rgba(11, 15, 25, 0.5);
 
+      /* 语义化着色（浅色主题下覆盖） */
+      --tint-cyan: rgba(0, 245, 212, 0.08);
+      --tint-cyan-strong: rgba(0, 245, 212, 0.18);
+      --tint-emerald: rgba(16, 185, 129, 0.12);
+      --tint-amber: rgba(245, 158, 11, 0.12);
+      --tint-violet: rgba(139, 92, 246, 0.12);
+
       /* 字体 */
       --font-main: 'Inter', system-ui, sans-serif;
       --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
@@ -60,6 +67,12 @@
       --color-emerald: #059669;
       --color-violet: #7C3AED;
       --glow-border: 0 0 20px rgba(8, 145, 178, 0.15);
+
+      --tint-cyan: rgba(8, 145, 178, 0.08);
+      --tint-cyan-strong: rgba(8, 145, 178, 0.16);
+      --tint-emerald: rgba(5, 150, 105, 0.12);
+      --tint-amber: rgba(217, 119, 6, 0.12);
+      --tint-violet: rgba(124, 58, 237, 0.12);
     }
 
     /* ===== 全局重置 ===== */
@@ -246,6 +259,13 @@
       overflow-y: auto;
     }
 
+    /* 内容居中，避免超宽屏上文字行过长 */
+    .overview-view > * {
+      max-width: 1180px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
     .overview-view::-webkit-scrollbar {
       width: 6px;
     }
@@ -352,6 +372,401 @@
       font-weight: 500;
       color: var(--color-cyan);
       font-family: var(--font-mono);
+    }
+
+    /* ===== 设计概述 · 组件样式 ===== */
+    .ov-hero {
+      background: var(--bg-card);
+      backdrop-filter: var(--blur-md);
+      -webkit-backdrop-filter: var(--blur-md);
+      border: 1px solid var(--border-color);
+      border-radius: 16px;
+      padding: var(--space-xl);
+      margin-bottom: var(--space-xl);
+      box-shadow: var(--shadow-card), var(--glow-border);
+      animation: fade-in-up 0.6s ease-out backwards;
+    }
+
+    .ov-kicker {
+      display: inline-block;
+      font-family: var(--font-mono);
+      font-size: 12px;
+      letter-spacing: 0.14em;
+      color: var(--color-cyan);
+      background: var(--tint-cyan);
+      border: 1px solid var(--border-color);
+      border-radius: 999px;
+      padding: 4px 14px;
+      margin-bottom: var(--space-md);
+    }
+
+    .ov-hero-title {
+      font-size: 30px;
+      font-weight: 700;
+      color: var(--text-primary);
+      line-height: 1.4;
+      margin-bottom: var(--space-md);
+    }
+
+    .ov-hero-lead {
+      font-size: 16px;
+      color: var(--text-secondary);
+      line-height: 1.9;
+      margin-bottom: 0 !important;
+    }
+
+    .ov-hero-lead strong {
+      color: var(--color-cyan);
+      font-weight: 600;
+    }
+
+    .ov-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--space-sm);
+      margin-top: var(--space-lg);
+    }
+
+    .ov-chip {
+      font-size: 13px;
+      padding: 6px 14px;
+      border-radius: 999px;
+      background: var(--tint-emerald);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      color: var(--color-emerald);
+    }
+
+    .ov-chip.amber {
+      background: var(--tint-amber);
+      border-color: rgba(245, 158, 11, 0.3);
+      color: var(--color-amber);
+    }
+
+    .ov-chip.violet {
+      background: var(--tint-violet);
+      border-color: rgba(139, 92, 246, 0.3);
+      color: var(--color-violet);
+    }
+
+    /* 卡片网格 */
+    .ov-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: var(--space-md);
+    }
+
+    .ov-grid-4 {
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    }
+
+    .ov-card {
+      background: var(--tint-cyan);
+      border: 1px solid var(--border-color);
+      border-radius: 10px;
+      padding: var(--space-md);
+      transition: all 0.3s ease;
+    }
+
+    .ov-card:hover {
+      background: var(--tint-cyan-strong);
+      border-color: var(--color-cyan);
+      transform: translateY(-2px);
+    }
+
+    .ov-card-title {
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: var(--space-xs);
+    }
+
+    .ov-card-desc {
+      font-size: 13px;
+      color: var(--text-secondary);
+      line-height: 1.7;
+    }
+
+    .ov-code {
+      display: inline-block;
+      font-family: var(--font-mono);
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--bg-primary);
+      background: var(--color-cyan);
+      border-radius: 4px;
+      padding: 1px 7px;
+      margin-right: var(--space-sm);
+    }
+
+    .ov-code.emerald {
+      background: var(--color-emerald);
+    }
+
+    /* 前后对比 */
+    .ov-flow {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: var(--space-md);
+    }
+
+    .ov-flow-col {
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: var(--space-lg);
+    }
+
+    .ov-flow-col.before {
+      background: var(--tint-amber);
+      border-color: rgba(245, 158, 11, 0.28);
+    }
+
+    .ov-flow-col.after {
+      background: var(--tint-emerald);
+      border-color: rgba(16, 185, 129, 0.28);
+    }
+
+    .ov-flow-title {
+      font-size: 15px;
+      font-weight: 600;
+      margin-bottom: var(--space-md);
+    }
+
+    .ov-flow-col.before .ov-flow-title { color: var(--color-amber); }
+    .ov-flow-col.after .ov-flow-title { color: var(--color-emerald); }
+
+    .ov-flow-col ul,
+    .ov-flow-col ol {
+      list-style: none;
+    }
+
+    .ov-flow-col li {
+      position: relative;
+      padding-left: 20px;
+      margin-bottom: var(--space-sm);
+      font-size: 14px;
+      color: var(--text-secondary);
+      line-height: 1.7;
+    }
+
+    .ov-flow-col li:last-child {
+      margin-bottom: 0;
+    }
+
+    .ov-flow-col li::before {
+      content: '▸';
+      position: absolute;
+      left: 0;
+      color: var(--color-cyan);
+    }
+
+    /* 有序列表（自动编号圆点） */
+    .ov-ol {
+      list-style: none;
+      counter-reset: ovstep;
+    }
+
+    .ov-ol li {
+      counter-increment: ovstep;
+      position: relative;
+      padding-left: 38px;
+      margin-bottom: var(--space-sm);
+      font-size: 14px;
+      color: var(--text-secondary);
+      line-height: 1.8;
+    }
+
+    .ov-ol li:last-child {
+      margin-bottom: 0;
+    }
+
+    .ov-ol li::before {
+      content: counter(ovstep);
+      position: absolute;
+      left: 0;
+      top: 2px;
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background: var(--tint-cyan-strong);
+      border: 1px solid var(--border-color);
+      color: var(--color-cyan);
+      font-family: var(--font-mono);
+      font-size: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* 表格 */
+    .ov-table-wrap {
+      overflow-x: auto;
+    }
+
+    .ov-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 14px;
+      min-width: 560px;
+    }
+
+    .ov-table th,
+    .ov-table td {
+      padding: 10px 12px;
+      text-align: left;
+      vertical-align: top;
+      border-bottom: 1px solid var(--border-color);
+      color: var(--text-secondary);
+      line-height: 1.7;
+    }
+
+    .ov-table th {
+      color: var(--color-cyan);
+      font-weight: 600;
+      background: var(--tint-cyan);
+      white-space: nowrap;
+    }
+
+    .ov-table tbody tr:hover {
+      background: var(--tint-cyan);
+    }
+
+    .ov-table td strong {
+      color: var(--text-primary);
+    }
+
+    /* 步骤卡 */
+    .ov-steps {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: var(--space-md);
+    }
+
+    .ov-step {
+      background: var(--tint-cyan);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: var(--space-lg);
+    }
+
+    .ov-step-no {
+      font-family: var(--font-mono);
+      font-size: 26px;
+      font-weight: 700;
+      color: var(--color-cyan);
+      opacity: 0.55;
+      line-height: 1;
+      margin-bottom: var(--space-sm);
+    }
+
+    .ov-step-title {
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: var(--space-sm);
+    }
+
+    .ov-step-desc {
+      font-size: 13px;
+      color: var(--text-secondary);
+      line-height: 1.8;
+    }
+
+    .ov-step-desc code,
+    .ov-mono {
+      font-family: var(--font-mono);
+      font-size: 12.5px;
+      color: var(--color-cyan);
+      background: var(--tint-cyan-strong);
+      border-radius: 4px;
+      padding: 1px 6px;
+    }
+
+    /* 提示块 */
+    .ov-note {
+      border-left: 3px solid var(--color-cyan);
+      background: var(--tint-cyan);
+      padding: var(--space-md) var(--space-lg);
+      border-radius: 0 10px 10px 0;
+      color: var(--text-secondary);
+      font-size: 14px;
+      line-height: 1.9;
+    }
+
+    .ov-note strong {
+      color: var(--color-cyan);
+    }
+
+    /* 配图 */
+    .ov-figure {
+      background: #FFFFFF;
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: var(--space-md);
+      margin: var(--space-lg) auto 0;
+      max-width: 660px;
+    }
+
+    .ov-figure img {
+      display: block;
+      width: 100%;
+      height: auto;
+    }
+
+    .ov-figcaption {
+      font-size: 13px;
+      color: var(--text-secondary);
+      text-align: center;
+      margin-top: var(--space-sm);
+    }
+
+    /* 文档链接 */
+    .ov-links {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+      gap: var(--space-sm);
+    }
+
+    .ov-link {
+      display: block;
+      padding: 10px 14px;
+      border-radius: 8px;
+      border: 1px solid var(--border-color);
+      background: var(--tint-cyan);
+      color: var(--text-secondary);
+      text-decoration: none;
+      font-size: 14px;
+      transition: all 0.3s ease;
+    }
+
+    .ov-link:hover {
+      color: var(--color-cyan);
+      border-color: var(--color-cyan);
+      transform: translateX(3px);
+    }
+
+    /* 修订记录 */
+    .ov-log {
+      list-style: none;
+    }
+
+    .ov-log li {
+      display: flex;
+      gap: var(--space-md);
+      padding: var(--space-sm) 0;
+      border-bottom: 1px dashed var(--border-color);
+      font-size: 14px;
+      color: var(--text-secondary);
+    }
+
+    .ov-log li:last-child {
+      border-bottom: none;
+    }
+
+    .ov-log time {
+      flex: 0 0 auto;
+      font-family: var(--font-mono);
+      font-size: 13px;
+      color: var(--color-cyan);
     }
 
     /* ===== 我能做什么视图 ===== */
@@ -1006,17 +1421,69 @@
   <main class="main-content">
     <!-- 设计概述视图 -->
     <div id="overview" class="view overview-view">
-      <div class="section">
-        <h2 class="section-title">开发主旨</h2>
-        <div class="section-content">
-          <p><span class="highlight">自研低代码开发平台</span> — 高质效构建中小型 MIS</p>
-          <p>兼顾大型平台轻量化模块设计，融合前沿技术与企业级实践，重构高效开发范式</p>
+      <!-- Hero -->
+      <div class="ov-hero">
+        <span class="ov-kicker">SDP · 敏捷开发平台</span>
+        <h1 class="ov-hero-title">一句话先说清楚</h1>
+        <p class="ov-hero-lead">
+          你把<strong>表的结构、字段、菜单</strong>写进一张 Excel，平台就帮你把「列表 + 新建/编辑表单 + 筛选 + 排序 + 导出 + 统计 + 图表」这一整套后台模块生成出来。<br>
+          剩下的时间，你只需要写真正属于业务的那 <strong>20%</strong>。
+        </p>
+        <div class="ov-chips">
+          <span class="ov-chip">重复 CRUD 模板代码 → 归零</span>
+          <span class="ov-chip">系统与文档同源生成</span>
+          <span class="ov-chip">需求会上直接 demo</span>
+          <span class="ov-chip">中小型 MIS 快速落地</span>
         </div>
       </div>
 
+      <!-- 01 是什么 & 给谁用 -->
       <div class="section">
-        <h2 class="section-title">核心定位与技术基因</h2>
+        <h2 class="section-title">01 · SDP 是什么 &amp; 给谁用</h2>
         <div class="section-content">
+          <p>SDP（敏捷开发平台）解决的是一件很具体的事：<span class="highlight">让「重复的 CRUD 模板代码」消失</span>。</p>
+          <p>一个中小型的普通 MIS 系统，真正的业务逻辑往往不到 20%，剩下 80% 是：</p>
+          <ul class="feature-list">
+            <li>一遍又一遍地搭列表页：筛选、排序、分页、导出</li>
+            <li>一遍又一遍地搭表单页：各种输入控件、校验、只读控制</li>
+            <li>一遍又一遍地搭工具栏：新增、编辑、删除、批量操作</li>
+            <li>一遍又一遍地搭统计：维度表、图表、视图设置</li>
+          </ul>
+          <p>SDP 把这 80% 的工作<span class="highlight">抽到了 Excel 配置里</span>，开发者只需要关注真正属于业务的代码。</p>
+
+          <h3 class="sub-title">它适合谁？</h3>
+          <div class="ov-grid ov-grid-4">
+            <div class="ov-card">
+              <div class="ov-card-title">需求 / 设计人员</div>
+              <div class="ov-card-desc">在 Excel 里把表结构想清楚，就能产出一个<span class="highlight">可运行的原型模块</span>，而不是只能画几张图</div>
+            </div>
+            <div class="ov-card">
+              <div class="ov-card-title">前端开发者</div>
+              <div class="ov-card-desc">不用再从零搭表格、表单、筛选这些「长得都差不多」的页面</div>
+            </div>
+            <div class="ov-card">
+              <div class="ov-card-title">后端开发者</div>
+              <div class="ov-card-desc">表结构即接口，数据字典即权限，字段定义即校验规则</div>
+            </div>
+            <div class="ov-card">
+              <div class="ov-card-title">小团队 / 中小企业</div>
+              <div class="ov-card-desc">不用专门养一支前端，业务就能跑起来</div>
+            </div>
+          </div>
+
+          <div class="ov-note" style="margin-top: var(--space-lg);">
+            💡 <strong>一句话总结</strong>：把「配置」还给业务，把「代码」留给真正重要的地方。
+          </div>
+        </div>
+      </div>
+
+      <!-- 02 技术底座与开发范式 -->
+      <div class="section">
+        <h2 class="section-title">02 · 开发主旨与技术底座</h2>
+        <div class="section-content">
+          <p><span class="highlight">自研低代码开发平台</span> — 高质效构建中小型 MIS</p>
+          <p>兼顾大型平台轻量化模块设计，融合前沿技术与企业级实践，重构高效开发范式</p>
+
           <h3 class="sub-title">敏捷开发引擎</h3>
           <ul class="feature-list">
             <li>先管理好系统核心资产（功能和数据）事半功倍</li>
@@ -1033,12 +1500,7 @@
             <li>满足中小型企业成本敏感与灵活扩展需求</li>
             <li>有效支撑国产化、特殊数据库等个性化要求</li>
           </ul>
-        </div>
-      </div>
 
-      <div class="section">
-        <h2 class="section-title">开发范式与综合收益</h2>
-        <div class="section-content">
           <h3 class="sub-title">"壳"系统支撑中小型 MIS 快速构建</h3>
           <ul class="feature-list">
             <li><span class="ratio-tag">10%</span> 系统功能复用 — <span class="highlight">微调</span></li>
@@ -1050,10 +1512,268 @@
 
           <h3 class="sub-title">基于软件生命周期综合收益大幅度提升</h3>
           <ul class="feature-list">
-            <li>底层成本投入 & 大技术升级：技术能力越强越可控</li>
-            <li>一次乘积效应：产品品质&开发效率、功能优化&可扩展性、高品质文档、人均质效……</li>
+            <li>底层成本投入 &amp; 大技术升级：技术能力越强越可控</li>
+            <li>一次乘积效应：产品品质&amp;开发效率、功能优化&amp;可扩展性、高品质文档、人均质效……</li>
             <li>二次乘积效应：多项目、长周期，收益更大</li>
           </ul>
+        </div>
+      </div>
+
+      <!-- 03 能力全景 -->
+      <div class="section">
+        <h2 class="section-title">03 · 一图看能力全景</h2>
+        <div class="section-content">
+          <p>平台的能力可以分三层来看：</p>
+
+          <h3 class="sub-title">🧱 基础模块（无需编码）</h3>
+          <div class="ov-grid">
+            <div class="ov-card">
+              <div class="ov-card-title"><span class="ov-code">m1</span>数据列表 + 采集</div>
+              <div class="ov-card-desc">最常见的「一张表 + 一个表单」</div>
+            </div>
+            <div class="ov-card">
+              <div class="ov-card-title"><span class="ov-code">m2</span>媒体列表 + 采集</div>
+              <div class="ov-card-desc">图片、视频、音频的卡片 / 列表展示</div>
+            </div>
+            <div class="ov-card">
+              <div class="ov-card-title"><span class="ov-code">m3</span>主子表展示 + 采集</div>
+              <div class="ov-card-desc">一个主表带多个子表（如人员 + 工作履历）</div>
+            </div>
+            <div class="ov-card">
+              <div class="ov-card-title"><span class="ov-code">m4</span>关联表展示</div>
+              <div class="ov-card-desc">一对多关系（人员 ↔ 角色）</div>
+            </div>
+            <div class="ov-card">
+              <div class="ov-card-title"><span class="ov-code">m5</span>树状数据 + 采集</div>
+              <div class="ov-card-desc">菜单维护、组织机构等</div>
+            </div>
+            <div class="ov-card">
+              <div class="ov-card-title"><span class="ov-code">m6</span>树状数据 + 数据列表</div>
+              <div class="ov-card-desc">左侧树，右侧列表</div>
+            </div>
+          </div>
+
+          <h3 class="sub-title">⚡ 高阶能力（开箱即用）</h3>
+          <div class="ov-chips">
+            <span class="ov-chip violet">f1 维度表统计</span>
+            <span class="ov-chip violet">f2 图表统计</span>
+            <span class="ov-chip violet">f3 列表高级筛选</span>
+            <span class="ov-chip violet">f4 列表视图设置</span>
+            <span class="ov-chip violet">f5 列表数据导出</span>
+            <span class="ov-chip violet">f6 生成设计文档</span>
+            <span class="ov-chip violet">f7 管理帮助文档</span>
+            <span class="ov-chip violet">f8 管理色彩主题及布局</span>
+            <span class="ov-chip violet">f9 AI 生成主题</span>
+            <span class="ov-chip violet">f10 AI 模块生成</span>
+            <span class="ov-chip violet">f11 核心资产导出</span>
+          </div>
+
+          <h3 class="sub-title">🏗 平台功能模块</h3>
+          <p>平台自身也是用 SDP 搭起来的：<span class="highlight">系统初始化</span> / <span class="highlight">系统管理</span> / <span class="highlight">敏捷开发管理</span> / <span class="highlight">统计分析</span> / <span class="highlight">媒体管理</span></p>
+
+          <figure class="ov-figure">
+            <img src="./resource/design/intro_data_view.png" alt="数据（驱动）视图：需求 → 开发 → 维护 全流程由同一份数据源驱动" loading="lazy">
+            <figcaption class="ov-figcaption">数据（驱动）视图：需求 → 开发 → 维护，同一份数据源贯穿全流程</figcaption>
+          </figure>
+        </div>
+      </div>
+
+      <!-- 04 一个动作，两个产出 -->
+      <div class="section">
+        <h2 class="section-title">04 · 一个动作，两个产出 —— SDP 真正的杀手锏</h2>
+        <div class="section-content">
+          <p>如果只让你记住一件事，记住这条：<span class="highlight">SDP 不只是「开发快」，而是「系统 + 文档 + 客户认知」三件事一起搞定</span>。</p>
+
+          <h3 class="sub-title">4.1 系统能跑，Word 文档也同时出</h3>
+          <p>你花一份时间写 Excel，平台同时给你两样东西：</p>
+          <ul class="feature-list">
+            <li>✅ 一个<span class="highlight">能跑的系统</span></li>
+            <li>✅ 一份对应的 <span class="highlight">Word 文档</span>（设计文档 / PRD / 模块说明）</li>
+          </ul>
+          <p>它们绑在一起出，因为都从<span class="highlight">同一个 Excel 数据源</span>生成。</p>
+          <p>为什么要强调这件事？大多数团队都有这个痛：</p>
+          <ul class="feature-list">
+            <li>系统改到 v3 了，设计文档还是 v1 的</li>
+            <li>字段加了一堆，旧文档没人同步，新同事看不懂</li>
+            <li>客户问「这个字段什么意思」，翻遍代码也找不到</li>
+            <li>每次系统上线，文档得有人单独再写一遍</li>
+          </ul>
+          <div class="ov-note" style="margin: var(--space-md) 0;">
+            💡 SDP 让文档跟系统<strong>永远对得上</strong> —— 因为你不用「写两遍」。你只写了 Excel，平台把系统跑出来、把文档也生成出来，改 Excel 一次，两边同步更新。
+          </div>
+
+          <h3 class="sub-title">4.2 需求会上就能 demo 给客户</h3>
+          <div class="ov-flow">
+            <div class="ov-flow-col before">
+              <div class="ov-flow-title">以前：几轮下来，合同还没签</div>
+              <ul>
+                <li>客户说需求</li>
+                <li>你回去画原型、写文档</li>
+                <li>几天后给客户看 demo</li>
+                <li>客户说「这不是我要的」</li>
+                <li>你回去改，几天后再 demo</li>
+              </ul>
+            </div>
+            <div class="ov-flow-col after">
+              <div class="ov-flow-title">现在：同一个会上就签字</div>
+              <ol class="ov-ol">
+                <li>客户说完需求，你现场把字段写在 Excel 里（10 分钟）</li>
+                <li>上传到平台 → 系统当场能跑</li>
+                <li>给客户演示，客户当场提意见：「这个字段不要，加那个」</li>
+                <li>你现场改 Excel，5 分钟后再次 demo</li>
+                <li><strong>PRD 在 Excel 里，系统在浏览器里</strong> —— 客户一边签字一边看效果</li>
+              </ol>
+            </div>
+          </div>
+          <div class="ov-note" style="margin-top: var(--space-md);">
+            🎯 客户离开会议室的时候，看到的就是<strong>最终系统</strong>，而不是「之后会做的」。需求变更成本从「几天」降到「几分钟」。
+          </div>
+
+          <h3 class="sub-title">4.3 前后对比</h3>
+          <div class="ov-table-wrap">
+            <table class="ov-table">
+              <thead>
+                <tr>
+                  <th></th>
+                  <th>传统开发</th>
+                  <th>用 SDP</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>一份产出要做几遍</td>
+                  <td>系统 + 文档 + 接口 + 测试 各做一遍</td>
+                  <td><strong>一遍 Excel，自动产出</strong></td>
+                </tr>
+                <tr>
+                  <td>文档跟系统对得上吗</td>
+                  <td>经常对不上，需要专人维护</td>
+                  <td><strong>永远对得上</strong>，从同一数据源生成</td>
+                </tr>
+                <tr>
+                  <td>客户首次看 demo 要等</td>
+                  <td>几天到几周</td>
+                  <td><strong>当场（5-10 分钟）</strong></td>
+                </tr>
+                <tr>
+                  <td>改一次需求的成本</td>
+                  <td>重做一版 demo + 改一版文档</td>
+                  <td><strong>改一下 Excel，两边同步</strong></td>
+                </tr>
+                <tr>
+                  <td>上线时文档质量</td>
+                  <td>看团队自觉，经常缺失</td>
+                  <td>文档是系统的一部分，<strong>必有</strong></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="ov-note" style="margin-top: var(--space-md);">
+            🎯 SDP 跟普通开发平台最大的区别不是「快」，而是「<strong>系统和文档永远在一起</strong>」+「<strong>客户在需求会上就见到成品</strong>」。两件事都做到，才是 SDP 真正的杀手锏。
+          </div>
+        </div>
+      </div>
+
+      <!-- 05 三步开始用 -->
+      <div class="section">
+        <h2 class="section-title">05 · 三步开始用</h2>
+        <div class="section-content">
+          <p>想立刻把平台跑起来，跟着「快速开始」走一遍就够了，大概 <span class="highlight">30 分钟</span>内能搞定。</p>
+          <div class="ov-steps">
+            <div class="ov-step">
+              <div class="ov-step-no">01</div>
+              <div class="ov-step-title">装环境</div>
+              <div class="ov-step-desc">
+                <span class="ov-mono">nodejs</span> 24.14.0 或更高版本<br>
+                包管理器 yarn / npm / pnpm 任选一个，推荐 yarn
+              </div>
+            </div>
+            <div class="ov-step">
+              <div class="ov-step-no">02</div>
+              <div class="ov-step-title">跑起来</div>
+              <div class="ov-step-desc">
+                <span class="ov-mono">git clone</span> → <span class="ov-mono">yarn</span> → <span class="ov-mono">npm start</span><br>
+                浏览器打开 <span class="ov-mono">http://localhost:3001/</span>，按提示完成一键初始化<br>
+                默认账号：<span class="ov-mono">admin</span> / <span class="ov-mono">ddit@1234</span>
+              </div>
+            </div>
+            <div class="ov-step">
+              <div class="ov-step-no">03</div>
+              <div class="ov-step-title">做第一个模块</div>
+              <div class="ov-step-desc">
+                1. 下载 Excel 模板（在「敏捷开发 - 系统构建」模块）<br>
+                2. 填好 4 个 Sheet：表 → 字段 → 模块 → 菜单<br>
+                3. 上传 Excel，平台自动构建出可运行的模块<br>
+                4. 在左侧菜单点击进入你刚建的页面
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 06 第一个模块长什么样 -->
+      <div class="section">
+        <h2 class="section-title">06 · 你的第一个模块能长什么样</h2>
+        <div class="section-content">
+          <p>拿最常见的 <span class="highlight">m1. 数据列表 + 采集</span> 举例。你只需要在 Excel 里写清楚：</p>
+          <ul class="feature-list">
+            <li><strong>表</strong>：表名、主键、字段名、数据类型、是否必填</li>
+            <li><strong>字段</strong>：每个字段的中文名、列表里要不要显示、表单里要不要采集、用什么控件</li>
+            <li><strong>模块</strong>：列表宽度、表单布局、工具栏按钮</li>
+            <li><strong>菜单</strong>：菜单路径、组件</li>
+          </ul>
+          <p>平台就自动生成这样一个完整页面：</p>
+          <ul class="feature-list">
+            <li>✅ <strong>列表</strong>：筛选、排序、分页、列设置、勾选导出、码表转换、统计行</li>
+            <li>✅ <strong>新建 / 编辑表单</strong>：15+ 种输入控件（Input、Select、DatePicker、Upload、RichTextEditor ……）、20+ 种校验规则（必填、长度、范围、正则、自定义方法）</li>
+            <li>✅ <strong>默认操作列</strong>：编辑、删除、详情</li>
+            <li>✅ <strong>工具栏</strong>：新增、批量删除、导入、导出，以及维度表统计、图表统计、视图设置等高阶能力按钮</li>
+            <li>✅ <strong>列表视图</strong>：可保存列顺序、冻结列、隐藏列，下次自动恢复</li>
+          </ul>
+          <div class="ov-note" style="margin-top: var(--space-md);">
+            👉 预期：从打开 Excel 到能跑通第一个模块，熟练的话 <strong>5 分钟</strong>内能完成。
+          </div>
+        </div>
+      </div>
+
+      <!-- 07 踩坑提醒 -->
+      <div class="section">
+        <h2 class="section-title">07 · 几个常见的「踩坑提醒」</h2>
+        <div class="section-content">
+          <ol class="ov-ol">
+            <li><strong>不要先想 UI，先想数据模型。</strong>表结构 + 字段定下来之后，UI 是顺带产出的。把字段定义写好，后续维护成本会下降一个量级。</li>
+            <li><strong>媒体类型资源请直接用平台提供的「媒体管理」。</strong>视频预览、图片预览都是现成的，不要自己造轮子。</li>
+            <li><strong>重要数据更新建议走「导出 → 修改 → 导入」路径</strong>，而不是直接在 Excel 里改完再重新导入整个文件。这样出问题可以回滚。</li>
+            <li><strong>构建前打开「前端预校验」。</strong>可以提前发现字段不匹配、菜单路径错误等问题。</li>
+          </ol>
+        </div>
+      </div>
+
+      <!-- 08 版本与帮助 -->
+      <div class="section">
+        <h2 class="section-title">08 · 版本与变更</h2>
+        <div class="section-content">
+          <p>平台一直在更新，最近的几次重要变更：</p>
+          <ul class="ov-log">
+            <li><time>2026-04-16</time><span>新增 <span class="ov-mono">AutomaticPageVTable</span> 组件，API 日志分析、应用日志分析</span></li>
+            <li><time>2026-03-13</time><span>新增 <span class="ov-mono">DDBaseGridVtable</span> 组件，用于大数据量、高性能表格场景</span></li>
+            <li><time>2026-01-12</time><span>新增 AI 主题设置、工具文档</span></li>
+            <li><time>2025-09-23</time><span>新增帮助文档管理、文档生成管理、皮肤设置</span></li>
+            <li><time>2025-05-29</time><span>字典视图支持树列表组合、一对多关联表配置</span></li>
+          </ul>
+
+          <h3 class="sub-title">想要更多帮助</h3>
+          <div class="ov-links">
+            <a class="ov-link" href="http://8.133.221.161/rspress-sdp-n/sdp/env_init.html" target="_blank" rel="noopener">📘 从 0 到运行 —— SDP 上手指南</a>
+            <a class="ov-link" href="http://8.133.221.161/rspress-sdp-n/sdp/what_can_do/what_can_do_01.html" target="_blank" rel="noopener">🧱 我能做什么 —— 基础模块</a>
+            <a class="ov-link" href="http://8.133.221.161/rspress-sdp-n/sdp/instruction.html" target="_blank" rel="noopener">⚡ 高级能力 —— 使用说明</a>
+            <a class="ov-link" href="http://8.133.221.161/rspress-sdp-n/sdp/customer_dev.html" target="_blank" rel="noopener">🛠 开发者进阶 —— 字典自定义开发</a>
+            <a class="ov-link" href="http://8.133.221.161/rspress-sdp-n/sdp/build_by_excel/1-sheet_table.html" target="_blank" rel="noopener">📊 Excel 构建说明 —— Sheet.表</a>
+            <a class="ov-link" href="http://8.133.221.161/rspress-sdp-n/sdp/what_can_do/what_can_do_03.html" target="_blank" rel="noopener">🏗 平台功能模块介绍</a>
+            <a class="ov-link" href="http://8.133.221.161/rspress-sdp-n/sdp/qa.html" target="_blank" rel="noopener">❓ 常见问题 Q&amp;A</a>
+            <a class="ov-link" href="http://8.133.221.161/rspress-sdp-n/sdp/self_check.html" target="_blank" rel="noopener">✅ 前端开发自查</a>
+            <a class="ov-link" href="http://8.133.221.161/rspress-sdp-n/sdp/changelog.html" target="_blank" rel="noopener">📝 完整修订记录</a>
+          </div>
         </div>
       </div>
     </div>
