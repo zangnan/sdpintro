@@ -163,6 +163,7 @@
 
     .nav-item {
       position: relative;
+      display: inline-block;
       padding: var(--space-sm) var(--space-md);
       font-size: 14px;
       font-weight: 500;
@@ -170,6 +171,15 @@
       cursor: pointer;
       transition: all 0.3s ease;
       border-radius: 6px;
+      text-decoration: none;
+    }
+
+    /* 外链（SDP文档站） */
+    .nav-item.external::after {
+      content: '↗';
+      margin-left: 4px;
+      font-size: 12px;
+      opacity: 0.75;
     }
 
     .nav-item:hover {
@@ -1396,7 +1406,7 @@
     </div>
     <div class="nav-item active" data-view="video">视频介绍</div>
     <div class="nav-item" data-view="overview">设计概述</div>
-    <div class="nav-item" data-view="capabilities">我能做什么</div>
+    <a class="nav-item external" href="http://8.133.221.161/rspress-sdp-n/" target="_blank" rel="noopener noreferrer">SDP文档站</a>
     <button class="theme-toggle" id="themeToggle" title="切换主题">
       <!-- 月亮图标（暗色主题显示） -->
       <svg class="moon-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -2100,6 +2110,7 @@
     // 切换视图
     function switchView(viewId) {
       navItems.forEach(item => {
+        if (!item.dataset.view) return;
         item.classList.toggle('active', item.dataset.view === viewId);
       });
 
@@ -2116,9 +2127,10 @@
       html.setAttribute('data-theme', newTheme === 'dark' ? '' : 'light');
     }
 
-    // 绑定导航点击事件
+    // 绑定导航点击事件（外链如「SDP文档站」无 data-view，点击时不做视图切换）
     navItems.forEach(item => {
       item.addEventListener('click', () => {
+        if (!item.dataset.view) return;
         switchView(item.dataset.view);
       });
     });
